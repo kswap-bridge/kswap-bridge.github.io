@@ -642,7 +642,7 @@ $(window).bind("load", function () {
         $("#hive").text(bal.HIVE.toFixed(3));
         $("#swaphive").text(bal["SWAP.HIVE"].toFixed(3));
         var baseFee = BASE_FEE * 100;
-        $("#basefeedisplay").text(baseFee);        
+        //$("#basefeedisplay").text(baseFee);        
     }
 
     $("#checkbalance").click(async function () {
