@@ -6,6 +6,7 @@ html, body {
     background-color: #000000;
     color: #fff;
     font-size: 1rem;
+    padding-bottom: 30px; /* adjust the value as needed */
 }
 
 img {
@@ -120,11 +121,11 @@ a {
 }
 
 .htable tr:nth-child(even) {
-  background-color: #1e1e1e;
+  background-color: #000000;
 }
 
 .htable tr:hover {
-  background-color: #1e1e1e;
+  background-color: #000000;
 }
 
 @media (max-width: 1120px) { 
