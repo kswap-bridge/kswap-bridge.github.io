@@ -520,7 +520,7 @@ label {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    background-color: #c5c5c5;
+    background-color: #dddddd;
     padding: 20px;
     border-radius: 5px;
     z-index: 9999;
@@ -587,7 +587,7 @@ label {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    background-color: #c5c5c5;
+    background-color: #dddddd;
     padding: 20px;
     border-radius: 5px;
     z-index: 9999;
