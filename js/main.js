@@ -3,9 +3,10 @@ DECIMAL = parseInt(DECIMAL) || 0.0;
 
 var BASE_FEE = 0.001;
 var DIFF_COEFFICIENT = 0.0035;
-var HIVEPOOL = 10000;
-var SHIVEPOOL = 10000;
+var HIVEPOOL = 25000;
+var SHIVEPOOL = 25000;
 const BRIDGE_USER = "kswap";
+let ssc;
 
 $(window).bind("load", function () {
 
@@ -31,9 +32,7 @@ $(window).bind("load", function () {
 		"https://api.hive-engine.com",
 		"https://api.primersion.com",
 		"https://herpc.actifit.io"
-    ];
-
-    let ssc;
+    ];    
     
     async function checkHiveNodeStatus(nodeUrl, statusElement) {
         try 
@@ -63,65 +62,95 @@ $(window).bind("load", function () {
     async function addHiveNodes() {
         try 
         {
+            var buttonHive = document.getElementById("popup-button-hive");
+            var popupHive = document.getElementById("popup-container-hive");
             const tableBody = document.querySelector("#api-list-hive tbody");
             const workingNodes = [];
             const failedNodes = [];
-        
+    
             for (let i = 0; i < rpc_nodes.length; i++) 
             {
                 const nodeUrl = rpc_nodes[i];
                 const row = document.createElement("tr");
                 const urlCell = document.createElement("td");
                 const statusCell = document.createElement("td");
-        
+    
                 urlCell.textContent = nodeUrl;
                 urlCell.classList.add("node-url"); // add new class to url cell
                 statusCell.textContent = "Checking...";
-        
+    
                 row.appendChild(urlCell);
                 row.appendChild(statusCell);
-        
+    
                 tableBody.appendChild(row);
-        
+    
                 // Check node status
                 checkHiveNodeStatus(nodeUrl, statusCell);
-        
+    
                 // Check node status every minute
                 setInterval(() => checkHiveNodeStatus(nodeUrl, statusCell), 60 * 1000);
             }
-      
+    
             // Reorder the list of nodes based on their status
             setTimeout(() => {
                 const rows = Array.from(tableBody.getElementsByTagName("tr"));
-        
+    
                 rows.forEach((row) => {
-                    if (row.lastChild.textContent === "Working") 
-                    {
+                    if (row.lastChild.textContent === "Working") {
                         workingNodes.push(row);
-                    } 
-                    else 
-                    {
+                    } else {
                         failedNodes.push(row);
                     }
                 });
-        
+    
                 tableBody.innerHTML = "";
-        
+    
                 // Append workingNodes first, then failedNodes
                 workingNodes.forEach((row) => {
                     tableBody.appendChild(row);
                 });
-        
+    
                 failedNodes.forEach((row) => {
                     tableBody.appendChild(row);
                 });
             }, 5000);
+    
+            // Add event listeners to the rows in the table body
+            var rowsHive = tableBody.getElementsByTagName("tr");
+            for (var i = 0; i < rowsHive.length; i++) 
+            {
+                rowsHive[i].addEventListener("click", function (event) {
+                    // Prevent the default link behavior
+                    event.preventDefault();
+    
+                    // Get the node URL from the first cell in the row
+                    var nodeUrl = this.cells[0].textContent;
+    
+                    // Set the API endpoint to the selected node
+                    hive.api.setOptions({ url: nodeUrl });
+    
+                    // Update the button text
+                    buttonHive.value = nodeUrl;
+                    buttonHive.innerHTML = nodeUrl;
+    
+                    // Save the selected endpoint to local storage
+                    localStorage.setItem("selectedEndpoint", nodeUrl);
+    
+                    // Hide the popup
+                    popupHive.style.display = "none";
+    
+                    // Reload the page after 1 second (adjust the time as needed)
+                    setTimeout(function () {
+                        location.reload();
+                    }, 1000);
+                });
+            }
         } 
         catch (error) 
         {
             console.log("Error at addHiveNodes(): ", error);
         }
-    };    
+    };       
 
     async function checkEngineNodeStatus(nodeUrl, statusElement) {
         try 
@@ -151,65 +180,95 @@ $(window).bind("load", function () {
     async function addEngineNodes() {
         try 
         {
+            var buttonEngine = document.getElementById("popup-button-engine");
+            var popupEngine = document.getElementById("popup-container-engine");
             const tableBody = document.querySelector("#api-list-engine tbody");
             const workingNodes = [];
             const failedNodes = [];
-        
+    
             for (let i = 0; i < he_rpc_nodes.length; i++) 
             {
                 const nodeUrl = he_rpc_nodes[i];
                 const row = document.createElement("tr");
                 const urlCell = document.createElement("td");
                 const statusCell = document.createElement("td");
-        
+    
                 urlCell.textContent = nodeUrl;
                 urlCell.classList.add("node-url"); // add new class to url cell
                 statusCell.textContent = "Checking...";
-        
+    
                 row.appendChild(urlCell);
                 row.appendChild(statusCell);
-        
+    
                 tableBody.appendChild(row);
-        
+    
                 // Check node status
                 checkEngineNodeStatus(nodeUrl, statusCell);
-        
+    
                 // Check node status every minute
                 setInterval(() => checkEngineNodeStatus(nodeUrl, statusCell), 60 * 1000);
             }
-      
+    
             // Reorder the list of nodes based on their status
             setTimeout(() => {
                 const rows = Array.from(tableBody.getElementsByTagName("tr"));
-        
+    
                 rows.forEach((row) => {
-                    if (row.lastChild.textContent === "Working") 
-                    {
+                    if (row.lastChild.textContent === "Working") {
                         workingNodes.push(row);
-                    } 
-                    else 
-                    {
+                    } else {
                         failedNodes.push(row);
                     }
                 });
-        
+    
                 tableBody.innerHTML = "";
-        
+    
                 // Append workingNodes first, then failedNodes
                 workingNodes.forEach((row) => {
                     tableBody.appendChild(row);
                 });
-        
+    
                 failedNodes.forEach((row) => {
                     tableBody.appendChild(row);
                 });
             }, 5000);
+    
+            // Add event listeners to the rows in the table body
+            var rowsEngine = tableBody.getElementsByTagName("tr");
+            for (var i = 0; i < rowsEngine.length; i++) 
+            {
+                rowsEngine[i].addEventListener("click", function (event) {
+                    // Prevent the default link behavior
+                    event.preventDefault();
+    
+                    // Get the node URL from the first cell in the row
+                    var nodeUrl = this.cells[0].textContent;
+    
+                    // Set the API endpoint to the selected node
+                    ssc = new SSC(nodeUrl);
+    
+                    // Update the button text
+                    buttonEngine.value = nodeUrl;
+                    buttonEngine.innerHTML = nodeUrl;
+    
+                    // Save the selected endpoint to local storage
+                    localStorage.setItem("selectedEngEndpoint", nodeUrl);
+    
+                    // Hide the popup
+                    popupEngine.style.display = "none";
+    
+                    // Reload the page after 1 second (adjust the time as needed)
+                    setTimeout(function () {
+                        location.reload();
+                    }, 1000);
+                });
+            }
         } 
         catch (error) 
         {
             console.log("Error at addEngineNodes(): ", error);
         }
-    };  
+    };      
     
     async function initializeHiveAPI() {
         var selectedEndpoint = await getSelectedEndpoint();
@@ -232,12 +291,10 @@ $(window).bind("load", function () {
     }
 
     async function processAPIs() {
-        try {
-            await addHiveNodes();
-            await addEngineNodes();
+        try 
+        {              
             await initializeHiveAPI();
-            await initializeEngineAPI();
-            refresh();
+            await initializeEngineAPI();            
         } 
         catch (error) 
         {
@@ -245,7 +302,7 @@ $(window).bind("load", function () {
         }
     };
       
-    processAPIs();
+    processAPIs();  
     
     hive.config.set('alternative_api_endpoints', rpc_nodes);
 
@@ -255,175 +312,210 @@ $(window).bind("load", function () {
 
     function dec(val) {
         return Math.floor(val * 1000) / 1000;
-    }
+    };
 
-    $(document).ready(function() {
-        // Get a reference to the button and the popup container
-        var buttonHive = document.getElementById("popup-button-hive");
-        var popupHive = document.getElementById("popup-container-hive");        
-
-        // Add an event listener to the button
-        buttonHive.addEventListener("click", function() {
-            // Show the popup
-            popupHive.style.display = "block";
-        });
-
-        // Get a reference to the API list table body
-        var tableBodyHive = document.querySelector("#api-list-hive tbody");
-
-        // Add event listeners to the rows in the table body
-        var rowsHive = tableBodyHive.getElementsByTagName("tr");
-        for (var i = 0; i < rowsHive.length; i++) 
-        {
-            rowsHive[i].addEventListener("click", function(event) {
-                // Prevent the default link behavior
-                event.preventDefault();
-
-                // Get the node URL from the first cell in the row
-                var nodeUrl = this.cells[0].textContent;
-
-                // Set the API endpoint to the selected node
-                hive.api.setOptions({ url: nodeUrl });
-
-                // Update the button text
-                buttonHive.value = nodeUrl;
-                buttonHive.innerHTML = nodeUrl;
-
-                // Save the selected endpoint to local storage
-                localStorage.setItem("selectedEndpoint", nodeUrl);
-
-                // Hide the popup
-                popupHive.style.display = "none";
-
-                // Reload the page after 1 second (adjust the time as needed)
-                setTimeout(function() {
-                    location.reload();
-                }, 1000);
-            });
-        }
-
-        // Add an event listener to the close button
-        var closeButtonHive = document.getElementById("close-button-hive");
-        closeButtonHive.addEventListener("click", function() {
-            // Hide the popup
-            popupHive.style.display = "none";
-        });
-        
-        /*
-        *   HE RPC NODES
-        */
-
-
-        // Get a reference to the button and the popup container
-        var buttonEngine = document.getElementById("popup-button-engine");
-        var popupEngine = document.getElementById("popup-container-engine");        
-
-        // Add an event listener to the button
-        buttonEngine.addEventListener("click", function() {
-            // Show the popup
-            popupEngine.style.display = "block";
-        });
-
-        // Get a reference to the API list table body
-        var tableBodyEngine = document.querySelector("#api-list-engine tbody");
-
-        // Add event listeners to the rows in the table body
-        var rowsEngine = tableBodyEngine.getElementsByTagName("tr");
-        for (var i = 0; i < rowsEngine.length; i++) 
-        {
-            rowsEngine[i].addEventListener("click", function(event) {
-                // Prevent the default link behavior
-                event.preventDefault();
-
-                // Get the node URL from the first cell in the row
-                var nodeUrl = this.cells[0].textContent;
-
-                // Set the API endpoint to the selected node
-                ssc = new SSC(nodeUrl);
-
-                // Update the button text
-                buttonEngine.value = nodeUrl;
-                buttonEngine.innerHTML = nodeUrl;
-
-                // Save the selected endpoint to local storage
-                localStorage.setItem("selectedEngEndpoint", nodeUrl);
-
-                // Hide the popup
-                popupEngine.style.display = "none";
-
-                // Reload the page after 1 second (adjust the time as needed)
-                setTimeout(function() {
-                    location.reload();
-                }, 1000);
-            });
-        }
-
-        // Add an event listener to the close button
-        var closeButtonEngine = document.getElementById("close-button-engine");
-        closeButtonEngine.addEventListener("click", function() {
-            // Hide the popup
-            popupEngine.style.display = "none";
-        });
+    $(document).ready(function() {        
+        loadHiveNode();
+        loadEngineNode();               
     });
 
-    async function getBalances(account) {
-        const res = await hive.api.getAccountsAsync([account]);
-        if (res.length > 0) {
-            const res2 = await ssc.find("tokens", "balances", { account, symbol: { "$in": ["SWAP.HIVE"] } }, 1000, 0, []);
-            var swaphive = res2.find(el => el.symbol === "SWAP.HIVE");
-            return {
-                HIVE: dec(parseFloat(res[0].balance.split(" ")[0])),
-                "SWAP.HIVE": dec(parseFloat((swaphive) ? swaphive.balance : 0))
-            }
+    async function loadHiveNode() {
+        try 
+        {
+            // Get a reference to the button and the popup container
+            var buttonHive = document.getElementById("popup-button-hive");
+            var popupHive = document.getElementById("popup-container-hive");
+        
+            // Add an event listener to the button
+            buttonHive.addEventListener("click", function () {
+                // Show the popup
+                popupHive.style.display = "block";
+                addHiveNodes();
+            });
+    
+            // Add an event listener to the close button
+            var closeButtonHive = document.getElementById("close-button-hive");
+            closeButtonHive.addEventListener("click", function () {
+                // Hide the popup
+                popupHive.style.display = "none";
+            });
+    
+            // Get a reference to the API list table body
+            var tableBodyHive = document.querySelector("#api-list-hive tbody");
+    
+            // Add an event listener to the table body
+            tableBodyHive.addEventListener("click", function (event) {
+                var target = event.target;
+                if (target && target.nodeName === "TD") 
+                {
+                    // Get the node URL from the first cell in the row
+                    var nodeUrl = target.parentNode.cells[0].textContent;
+    
+                    // Set the API endpoint to the selected node
+                    hive.api.setOptions({ url: nodeUrl });
+    
+                    // Update the button text
+                    buttonHive.value = nodeUrl;
+                    buttonHive.innerHTML = nodeUrl;
+    
+                    // Save the selected endpoint to local storage
+                    localStorage.setItem("selectedEndpoint", nodeUrl);
+    
+                    // Hide the popup
+                    popupHive.style.display = "none";
+    
+                    // Reload the page after 1 second (adjust the time as needed)
+                    setTimeout(function () {
+                        location.reload();
+                    }, 1000);
+                }
+            });
+        } 
+        catch (error) 
+        {
+            console.log("Error at loadHiveNode(): ", error);
+        }
+    }; 
+    
+    async function loadEngineNode() {
+        try 
+        {
+            // Get a reference to the button and the popup container
+            var buttonEngine = document.getElementById("popup-button-engine");
+            var popupEngine = document.getElementById("popup-container-engine");
+        
+            // Add an event listener to the button
+            buttonEngine.addEventListener("click", function () {
+                // Show the popup
+                popupEngine.style.display = "block";
+                addEngineNodes();
+            });
+    
+            // Add an event listener to the close button
+            var closeButtonEngine = document.getElementById("close-button-engine");
+            closeButtonEngine.addEventListener("click", function () {
+                // Hide the popup
+                popupEngine.style.display = "none";
+            });
+    
+            // Get a reference to the API list table body
+            var tableBodyEngine = document.querySelector("#api-list-engine tbody");
+    
+            // Add an event listener to the table body
+            tableBodyEngine.addEventListener("click", function (event) {
+                var target = event.target;
+                if (target && target.nodeName === "TD") 
+                {
+                    // Get the node URL from the first cell in the row
+                    var nodeUrl = target.parentNode.cells[0].textContent;
+    
+                    // Set the API endpoint to the selected node
+                    ssc = new SSC(nodeUrl);
+    
+                    // Update the button text
+                    buttonEngine.value = nodeUrl;
+                    buttonEngine.innerHTML = nodeUrl;
+    
+                    // Save the selected endpoint to local storage
+                    localStorage.setItem("selectedEngEndpoint", nodeUrl);
+    
+                    // Hide the popup
+                    popupEngine.style.display = "none";
+    
+                    // Reload the page after 1 second (adjust the time as needed)
+                    setTimeout(function () {
+                        location.reload();
+                    }, 1000);
+                }
+            });
+        } 
+        catch (error) 
+        {
+            console.log("Error at loadEngineNode(): ", error);
+        }
+    };  
 
-        } else return { HIVE: 0, "SWAP.HIVE": 0 };
-    }
+    async function getBalances(account) {
+        try
+        {
+            const res = await hive.api.getAccountsAsync([account]);
+            if (res.length > 0) 
+            {
+                const res2 = await ssc.find("tokens", "balances", { account, symbol: { "$in": ["SWAP.HIVE"] } }, 1000, 0, []);
+                var swaphive = res2.find(el => el.symbol === "SWAP.HIVE");
+                return {
+                    HIVE: dec(parseFloat(res[0].balance.split(" ")[0])),
+                    "SWAP.HIVE": dec(parseFloat((swaphive) ? swaphive.balance : 0))
+                }
+
+            } 
+            else 
+            {
+                return { HIVE: 0, "SWAP.HIVE": 0 };
+            }   
+        }
+        catch (error)
+        {
+            console.log("Error at getBalances() : ", error);
+        }
+    };
 
     async function getExtBridge () {
-        const res = await hive.api.getAccountsAsync(['uswap']);
-        var hiveLiq = res[0].balance.split(" ")[0];
-        hiveLiq = Math.floor(hiveLiq * DECIMAL) / DECIMAL;
+        try
+        {
+            const res = await hive.api.getAccountsAsync(['uswap']);
+            var hiveLiq = res[0].balance.split(" ")[0];
+            hiveLiq = Math.floor(hiveLiq * DECIMAL) / DECIMAL;
 
-        const res2 = await ssc.findOne("tokens", "balances", { account: 'uswap', symbol: 'SWAP.HIVE' });
-        var swaphiveLiq = parseFloat(res2.balance) || 0.0;
-        swaphiveLiq = Math.floor(swaphiveLiq * DECIMAL) / DECIMAL;
+            const res2 = await ssc.findOne("tokens", "balances", { account: 'uswap', symbol: 'SWAP.HIVE' });
+            var swaphiveLiq = parseFloat(res2.balance) || 0.0;
+            swaphiveLiq = Math.floor(swaphiveLiq * DECIMAL) / DECIMAL;
 
-        $("#hive_liq").text(hiveLiq);
-
-        $("#swap_liq").text(swaphiveLiq);
-
-        $("#bridge").removeClass("d-none");
-
-    }   
-
-    getExtBridge();
+            $("#hive_liq").text(hiveLiq);
+            $("#swap_liq").text(swaphiveLiq);
+            $("#bridge").removeClass("d-none");
+        }
+        catch (error)
+        {
+            console.log("Error at getExtBridge() : ", error);
+        }
+    };   
 
     async function refresh() {
-        updateMin();
-        bridgebal = await getBalances("kswap");
-        $("#hiveliquidity").text(bridgebal.HIVE.toFixed(3));
-        $("#swaphiveliquidity").text(bridgebal["SWAP.HIVE"].toFixed(3));
-        console.log("");
-        console.log(
-            'Update Hive Liquidity: ' + bridgebal.HIVE.toFixed(3) + ' HIVE',
-        );
+        try
+        {
+            updateMin();
+            bridgebal = await getBalances("kswap");
+            $("#hiveliquidity").text(bridgebal.HIVE.toFixed(3));
+            $("#swaphiveliquidity").text(bridgebal["SWAP.HIVE"].toFixed(3));
+            console.log("");
+            console.log(
+                'Update Hive Liquidity: ' + bridgebal.HIVE.toFixed(3) + ' HIVE',
+            );
 
-        console.log(
-            'Update SWAP.HIVE Liquidity: ' + bridgebal["SWAP.HIVE"].toFixed(3) + ' SWAP.HIVE',
-        );        
+            console.log(
+                'Update SWAP.HIVE Liquidity: ' + bridgebal["SWAP.HIVE"].toFixed(3) + ' SWAP.HIVE',
+            );        
 
-        try {
-            if (hive_keychain) {
-                $("#txtype").removeAttr("disabled");
-                $("#txtype").attr("checked", true);
+            try 
+            {
+                if (hive_keychain) 
+                {
+                    $("#txtype").removeAttr("disabled");
+                    $("#txtype").attr("checked", true);
+                }
             }
+            catch (e) 
+            {
+                $("#txtype").attr("disabled", true);
+                $("#txtype").removeAttr("checked");
+            }
+            $("input[name=txtype]").change();
         }
-        catch (e) {
-            $("#txtype").attr("disabled", true);
-            $("#txtype").removeAttr("checked");
+        catch (error)
+        {
+            console.log("Error at refresh() : ", error);
         }
-
-        $("input[name=txtype]").change();
     };
 
     $("#refresh").click(async function () {
@@ -438,7 +530,8 @@ $(window).bind("load", function () {
     }
 
     async function updateSwap(r) {
-        try {
+        try 
+        {
             updateMin();
             const insymbol = $("#input").val();
             var outsymbol = $("#output").val();
@@ -447,6 +540,7 @@ $(window).bind("load", function () {
 
             var hBalance = await calcHiveAmount();
             var shBalance = await calcSwapHiveAmount();
+
             if(hBalance > 0)
             {
                 HIVEPOOL = hBalance;
@@ -512,7 +606,10 @@ $(window).bind("load", function () {
                 }
             }
         } 
-        catch (e) { console.log(e); }
+        catch (error) 
+        { 
+            console.log("Error at updateSwap() : ", error); 
+        }
     }
 
     var modal = new bootstrap.Modal(document.getElementById('authqr'), {
@@ -520,8 +617,7 @@ $(window).bind("load", function () {
         backdrop: 'static',
     });
 
-    async function setOutPut()
-    {
+    async function setOutPut() {
         try
         {
             const insymbol = $("#input").val();
@@ -617,7 +713,103 @@ $(window).bind("load", function () {
         updateSwap();
     });
 
-    $("#inputquantity").keyup(() => { updateSwap(); setOutPut(); });
+    /*
+    let debounceTimeoutKeyup;
+    
+    $("#inputquantity").keyup(() => {
+        clearTimeout(debounceTimeoutKeyup);
+        debounceTimeoutKeyup = setTimeout(() => {  
+            console.log("HERE UP");           
+            updateSwap();
+            setOutPut();
+        }, 500); // Adjust the delay duration (in milliseconds) as needed
+    });
+    */
+
+    let debounceTimeoutInput;
+    let latestInputValue = null;
+
+    $("#inputquantity").on("input", () => {
+        clearTimeout(debounceTimeoutInput);
+        debounceTimeoutInput = setTimeout(() => {                    
+            updateSwap();
+            setOutPut();
+            if (latestInputValue !== null) 
+            {
+                updateSlipageQtyClick(latestInputValue);
+                updateOptionValuesClick(latestInputValue);
+            }
+        }, 500); // Adjust the delay duration (in milliseconds) as needed
+    });
+
+    $("#hive").click(async () => {   
+        latestInputValue = "HIVE";     
+        await updateInputClick("HIVE");
+    });
+
+    $("#swaphive").click(async () => { 
+        latestInputValue = "SWAP.HIVE";       
+        await updateInputClick("SWAP.HIVE");
+    });
+
+    async function updateInputClick(selectedValue) {
+        try 
+        {
+            const input = document.getElementById('inputquantity');
+            const inputElement = document.getElementById("input");
+            const feetickerElement = document.getElementById("minreceivesymbol");
+            inputElement.value = selectedValue;
+            feetickerElement.textContent = selectedValue === "HIVE" ? "SWAP.HIVE" : "HIVE"; 
+            var inputVal = parseFloat(input.value) || 0;
+    
+            latestInputValue = selectedValue;
+    
+            await updateSlipageQtyClick(inputVal);
+            await updateOptionValuesClick(selectedValue); 
+        } 
+        catch (error) 
+        {
+            console.log("Error at updateInputClick(): ", error);
+        }            
+    };
+    
+    async function updateSlipageQtyClick(inputVal) {
+        try 
+        {
+            const output = document.getElementById('outputquantity');
+            const slipageQty = document.getElementById('slipageqty');
+            const selectedRadioElement = document.querySelector('input[name="my-radio-group"]:checked');
+            const selectedRadioVal = selectedRadioElement ? parseFloat(selectedRadioElement.value) : 0;
+            const selectedSymbol = latestInputValue; // Use the latest input value        
+            let calcOut = await calcOutput(inputVal, selectedSymbol);
+            output.value = Math.floor((calcOut) * DECIMAL) / DECIMAL;
+    
+            if (selectedRadioElement) {
+                calcOut *= (1 - (selectedRadioVal / 100));
+            }                           
+            slipageQty.textContent = Math.floor((calcOut) * DECIMAL) / DECIMAL;
+        } 
+        catch (error) 
+        {
+            console.log("Error at updateSlipageQtyClick(): ", error);
+        }
+    };
+    
+    async function updateOptionValuesClick(inputSymbol) { 
+        try 
+        {                      
+            const outputElement = document.getElementById("output");
+            if (inputSymbol === 'HIVE') {
+                outputElement.value = 'SWAP.HIVE';
+            } else if (inputSymbol === 'SWAP.HIVE') {
+                outputElement.value = 'HIVE';
+            }
+        } 
+        catch (error) 
+        {
+            console.log("Error at updateOptionValuesClick(): ", error);
+        }
+    };   
 
     $("#input, #output").change(() => { updateSwap(); setOutPut(); });
 
@@ -1002,7 +1194,8 @@ $(window).bind("load", function () {
 
     const intervalBalances = async function () {
         var TIMEOUT = 1000 * 10;
-        try {
+        try 
+        {
             console.log("");
             console.warn("Here Refreshing");
             //const _await = await awaitFunction(); 
@@ -1017,7 +1210,8 @@ $(window).bind("load", function () {
             // setting timeout for 60 secs
             setTimeout(intervalBalances, 60000);
         }
-        catch (error) {
+        catch (error) 
+        {
             console.log("Error @ Refreshing : ", error);
             setTimeout(intervalBalances, 60000);
         }
@@ -1027,7 +1221,8 @@ $(window).bind("load", function () {
 
     async function setSwapAmounts() {
         var TIMEOUT = 1000 * 10;
-        try {
+        try 
+        {
             await timeout(TIMEOUT);
             console.log("Restting to Zero");
             $("#inputquantity").val("0.000");
@@ -1049,13 +1244,15 @@ $(window).bind("load", function () {
             $("#status").removeClass("text-success");
             $("#swap").attr("disabled", "true");
         }
-        catch (error) {
+        catch (error) 
+        {
             console.log("setSwapAmounts : ", error);
         }
     };
 
     async function changeMinOutput() {
-        try {
+        try 
+        {
             // Get references to the input and output elements
             const input = document.getElementById('inputquantity');
             const output = document.getElementById('outputquantity');
@@ -1134,12 +1331,11 @@ $(window).bind("load", function () {
                 slipageQty.textContent = Math.floor((calcOut) * DECIMAL) / DECIMAL;
             }; 
         }
-        catch (error) {
+        catch (error) 
+        {
             console.log("changeMinOutput : ", error);
         }
-    };
-
-    changeMinOutput();
+    };   
 
     async function calcOutput(inputVal, selectedSymbol)
     {
@@ -1188,45 +1384,49 @@ $(window).bind("load", function () {
     };
 
     //End of refresh
+
+    const calcHiveAmount = async () => {
+        var hiveBalance = 0.0;
+        try
+        {
+            let hiveData = await hive.api.callAsync('condenser_api.get_accounts', [[BRIDGE_USER]]);
+            if(hiveData.length > 0)
+            {        
+                hiveBalance = parseFloat(hiveData[0].balance.replace("HIVE", "").trim()) || 0.0;
+            }
+            return hiveBalance;
+        }
+        catch(error)
+        {
+            console.log("Error at calcHiveAmount() : ", error);
+            return hiveBalance;
+        }
+    }
+    
+    const calcSwapHiveAmount = async () => {
+        var swapHiveBalance = 0.0;
+        try
+        {
+            let swapHiveData = await ssc.findOne('tokens', 'balances', {'account': BRIDGE_USER, 'symbol': 'SWAP.HIVE'});
+            if(swapHiveData != null)
+            {        
+                swapHiveBalance = parseFloat(swapHiveData.balance) || 0.0;
+                swapHiveBalance = Math.floor(swapHiveBalance * DECIMAL) / DECIMAL;
+                swapHiveBalance = parseFloat(swapHiveData.balance) || 0.0;            
+            }
+            return swapHiveBalance;
+        }
+        catch(error)
+        {
+            console.log("Error at calcSwapHiveAmount() : ", error);
+            return swapHiveBalance;
+        }
+    }
+
+    refresh();
+    getExtBridge();
+    changeMinOutput();
 });
-
-const calcHiveAmount = async () => {
-    var hiveBalance = 0.0;
-    try
-    {
-        let hiveData = await hive.api.callAsync('condenser_api.get_accounts', [[BRIDGE_USER]]);
-        if(hiveData.length > 0)
-        {        
-            hiveBalance = parseFloat(hiveData[0].balance.replace("HIVE", "").trim()) || 0.0;
-        }
-        return hiveBalance;
-    }
-    catch(error)
-    {
-        console.log("Error at calcHiveAmount() : ", error);
-        return hiveBalance;
-    }
-}
-
-const calcSwapHiveAmount = async () => {
-    var swapHiveBalance = 0.0;
-    try
-    {
-        let swapHiveData = await ssc.findOne('tokens', 'balances', {'account': BRIDGE_USER, 'symbol': 'SWAP.HIVE'});
-        if(swapHiveData != null)
-        {        
-            swapHiveBalance = parseFloat(swapHiveData.balance) || 0.0;
-            swapHiveBalance = Math.floor(swapHiveBalance * DECIMAL) / DECIMAL;
-            swapHiveBalance = parseFloat(swapHiveData.balance) || 0.0;            
-        }
-        return swapHiveBalance;
-    }
-    catch(error)
-    {
-        console.log("Error at calcSwapHiveAmount() : ", error);
-        return swapHiveBalance;
-    }
-}
 
 const historyReader = async () => {
     try {
